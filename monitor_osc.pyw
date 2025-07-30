@@ -234,7 +234,7 @@ class Manager:
     def log(self, *args):
         msg = f"[{strftime('%Y-%m-%d %H:%M:%S')}] {' '.join(args)}"
         log_file = BACKUP_LOGFILE
-        if hasattr(self, "log_file"):
+        if hasattr(self, "log_file") and os.path.exists(self.log_file):
             log_file = self.log_file
 
         print(msg)
@@ -429,6 +429,7 @@ class Manager:
         self.root = tk.Tk()
         self.root.title("Configuration")
         self.root.protocol("WM_DELETE_WINDOW", self.close)
+        self.root.geometry("600x400")
 
         # Updates to the tk interface must be on the main thread, so we register a main thread event that background threads can trigger.
         self.root.bind("<<populate_dropdowns>>", self._populate_dropdowns)
