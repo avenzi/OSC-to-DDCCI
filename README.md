@@ -1,6 +1,6 @@
 # OSC to DDC/CI
 
-This is a simple windows app allows an OSC device to control basic monitor settings (brightness, contrast, power) through DDC/CI.
+This is a simple windows app that allows an OSC device to control basic monitor settings through DDC/CI (brightness, contrast, power).
 
 ## Installation
 1. Clone the repository
@@ -9,7 +9,7 @@ This is a simple windows app allows an OSC device to control basic monitor setti
 ## Usage
 1. Run `monitor_osc.exe`
 2. Wait a few seconds while it attempts to locate connected monitors
-2. Double-click on the system tray icon to bring up the configuration window.
+3. Double-click on the system tray icon to bring up the configuration window.
 
 **Log File**: Local file path to output logs. \
 **IP**: IP at which to listen for OSC data. \

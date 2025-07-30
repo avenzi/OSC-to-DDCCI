@@ -14,19 +14,6 @@ BACKUP_LOGFILE = "monitor_osc.log"
 # TODO: monitorcontrol has an issue where you can't uniquely identify two monitors with the same model code.
 #  https://github.com/newAM/monitorcontrol/issues/250
 
-
-"""
-Range defines the min and max output values.
-Offset defines where the min and max values start relative to the input values.
-Input:   0 -------------------------------------- 1
-
-Offset: (0.2, 0.5)
-Output:  0 ----- 0 ---------- 1 ----------------- 1
-
-Range:  (20, 80)
-Output: 20 ---- 20 --------- 80 ----------------- 80
-"""
-
 # TODO: need to detect when a monitor is turned off and back on.
 
 class Monitor:
