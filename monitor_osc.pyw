@@ -64,13 +64,16 @@ class Monitor:
         # self.last_power_time = time()
 
     def debug(self, *msg):
-        self.manager.debug(*msg)
+        self.manager.debug(f"[{self.model}] ", *msg)
+
+    def log(self, *msg):
+        self.manager.log(f"[{self.model}] ", *msg)
 
     def run(self):
         """ Run the event loop for this monitor, waiting for signals to set contrast/luminance. """
         if self.running: return  # do nothing if already running
         self.running = True
-        self.manager.log("Running monitor:", self.model)
+        self.log("Running")
         Thread(target=self._run).start()
 
     def _run(self):
@@ -91,7 +94,7 @@ class Monitor:
                     self.set_luminance()
                     self.set_contrast()
                 except Exception as e:
-                    self.manager.log(f"Error setting monitor values: {self.model}.\n{e.__class__.__name__}: {e}\n\n{format_exc()}")
+                    self.log(f"Error setting monitor values: {self.model}.\n{e.__class__.__name__}: {e}\n\n{format_exc()}")
 
     def stop(self):
         """ Stop the monitor event loop """
@@ -103,7 +106,7 @@ class Monitor:
             with self.monitor:
                 pass
         except Exception as e:
-            self.manager.log(f"Error connecting to monitor: {self.model}\n{e.__class__.__name__}: {e}")
+            self.log(f"Error connecting to monitor: {self.model}\n{e.__class__.__name__}: {e}")
             self.manager.locate_monitors()  # re-locate monitors
 
     def set_interval(self, interval):
@@ -130,7 +133,7 @@ class Monitor:
         :param range: tuple for output range. Default (0, 100).
             What the min and max output values are.
         :param offset: tuple for output range offset. Default (0, 1).
-            Where hte min and max output values are relative to the input values.
+            Where the min and max output values are relative to the input values.
         """
         if range: self.luminance_range = range
         if offset: self.luminance_offset = offset
@@ -159,7 +162,10 @@ class Monitor:
         value = (value * (self.luminance_range[1] - self.luminance_range[0])) + self.luminance_range[0]
         value = min(max(value, self.luminance_range[0]), self.luminance_range[1])
         with self.monitor:
-            self.monitor.set_luminance(int(value))
+            try:
+                self.monitor.set_luminance(int(value))
+            except Exception as e:
+                log(f"Error setting luminance: ", e)
         sleep(self.interval / 1000)
 
     def set_contrast(self):
@@ -169,7 +175,10 @@ class Monitor:
         value = (value * (self.contrast_range[1] - self.contrast_range[0])) + self.contrast_range[0]
         value = min(max(value, self.contrast_range[0]), self.contrast_range[1])
         with self.monitor:
-            self.monitor.set_contrast(int(value))
+            try:
+                self.monitor.set_contrast(int(value))
+            except Exception as e:
+                self.log(f"Error setting contrast: ", e)
         sleep(self.interval / 1000)
 
     def toggle(self, value):
@@ -219,7 +228,7 @@ class Manager:
         self.paths = {}
 
     def log(self, *args):
-        msg = f"[{strftime('%Y-%m-%d %H:%M:%S')}] {' '.join(args)}"
+        msg = f"[{strftime('%Y-%m-%d %H:%M:%S')}] {' '.join([str(a) for a in args])}"
         log_file = BACKUP_LOGFILE
         if hasattr(self, "log_file") and os.path.exists(self.log_file):
             log_file = self.log_file
@@ -335,7 +344,7 @@ class Manager:
             self.server = osc_server.ThreadingOSCUDPServer((self.ip, self.port), dispatcher)
             self.log("Serving on {}".format(self.server.server_address))
             self.server.serve_forever()
-            self.debug("Server Stopped")
+            self.log("Server Stopped")
     def reload(self):
         """ Reload the OSC server """
         if not self.server: return
